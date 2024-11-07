@@ -17,5 +17,5 @@ jobs:
       - name: Push to hub
         env:
           HF_TOKEN: ${{secrets.HF_TOKEN}}
-        run: git push --force https://Spaceman-123:$HF_TOKEN@huggingface.co/spaces/Spaceman-123/fire-detection main
+        run: git push --force https://Spaceman-123:$HF_TOKEN@huggingface.co/spaces/Spaceman-123/fire_detection_demo main
         
