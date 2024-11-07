@@ -1,0 +1,5 @@
+/dataset/*
+.jpg/*
+.mp4/*
+yolo11n.pt
+videos/*
