@@ -9,4 +9,4 @@ app_file: app.py
 pinned: false
 ---
 
-# Fire Detection App
+# Fire Detection Demo
