@@ -1,16 +1,27 @@
 import cv2
-from datetime import timedelta
+import datetime
 from ultralytics import YOLO
 import tempfile
 import numpy as np
 import os
 
+
+def generate_video_name(output_video_path):
+    # Get the current date and time
+    now = datetime.datetime.now()
+    # Format it into a compressed string: YYYYMMDD_HHMMSS
+    timestamp = now.strftime("%Y%m%d_%H%M%S")
+    extension = output_video_path.split('.')[-1]
+    new_video_name = f"video_{timestamp}.{extension}"
+    return new_video_name
+
+
 # Load the YOLO model for smoke and fire detection
 def load_yolo_model(model_path=None):
     if model_path:
         model = YOLO(model_path)
-    # else:
-    #     model = YOLO("model_weights\\best.pt")  # Default model
+    else:
+        print('No Model weights added')
     return model
 
 # Draw bounding boxes with labels and confidence scores
@@ -21,7 +32,7 @@ def draw_bounding_boxes(frame, detections):
         confidence = detection['confidence']
         color = (255, 0, 0) if label == 'fire' else (128, 128, 128)
         cv2.rectangle(frame, (int(x_min), int(y_min)), (int(x_max), int(y_max)), color, 2)
-        text = f"{label}: {confidence:.2f}"
+        text = f"{label}" #{confidence:.2f}
         cv2.putText(frame, text, (int(x_min), int(y_min) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
     return frame
 
@@ -29,20 +40,20 @@ def main():
     print("Smoke and Fire Detection with YOLO")
 
     # Model upload option
-    model_path = "best2.pt"
+    model_path = r"runs/detect/train2/weights/best.pt"
 
     # Load the YOLO model
     model = load_yolo_model(model_path)
     
     # Video file path
-    video_path = "videos\pp_fire.mp4"
-    
+    video_path = "pp_fire.mp4"
+    print(os.path.exists(video_path))
     cap = cv2.VideoCapture(video_path)
     frame_rate = cap.get(cv2.CAP_PROP_FPS)
     width = int(cap.get(3)) 
     height = int(cap.get(4))
 
-    output_video_path = "output_video.mp4"
+    output_video_path = generate_video_name(output_video_path = "output.mp4")
     out = cv2.VideoWriter(output_video_path, cv2.VideoWriter_fourcc(*'mp4v'), frame_rate, (width, height))
 
     previous_bbox = []
@@ -55,11 +66,16 @@ def main():
         outputs = model.predict(frame)
         detections = []
         for detection in outputs:
+            #### Comment this to remove flagging
             if len(detection) > 0:
                 bboxes = detection.boxes
                 previous_bbox = bboxes
             else:
                 bboxes = previous_bbox
+            ####
+            
+            # Commit this to not use flagging
+            # bboxes = detection.boxes
 
             for box in bboxes:
                 bbox = box.xyxy.tolist()[0]
